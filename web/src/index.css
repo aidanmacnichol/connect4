@@ -10,5 +10,11 @@ body,
 }
 
 body {
-  background: #0f2740;
+  background: #e8f4fc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font: inherit;
 }

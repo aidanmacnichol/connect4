@@ -1,0 +1,107 @@
+.game-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  width: min(100%, 32rem);
+}
+
+.game-screen__brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+}
+
+.game-screen__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs) var(--space-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.game-screen__you {
+  font-size: 0.9375rem;
+}
+
+.game-screen__turn {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.game-screen__status {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.game-screen__error {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.game-screen__result {
+  width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 3px solid;
+  box-shadow: var(--shadow-clay-out);
+  text-align: center;
+  animation: result-enter var(--motion-slow) var(--ease-out) both;
+}
+
+.game-screen__result--win {
+  background: #dcfce7;
+  border-color: var(--color-success);
+}
+
+.game-screen__result--loss {
+  background: #fee2e2;
+  border-color: var(--color-danger);
+}
+
+.game-screen__result--draw {
+  background: var(--color-surface);
+  border-color: var(--color-board-border);
+}
+
+.game-screen__result-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 4vw, 1.875rem);
+  color: var(--color-text);
+}
+
+.game-screen__result-copy {
+  margin: var(--space-2xs) 0 0;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.game-screen__actions {
+  margin-top: var(--space-sm);
+}
+
+@keyframes result-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,89 @@
+:root {
+  --color-bg: #e8f4fc;
+  --color-bg-deep: #d4eaf8;
+  --color-surface: #f7fbfe;
+  --color-surface-inset: #c5dff0;
+  --color-board: #3b82c4;
+  --color-board-border: #2a5f94;
+  --color-board-highlight: #5ba3d9;
+  --color-red: #e23b3b;
+  --color-red-light: #ff7a7a;
+  --color-red-deep: #b91c1c;
+  --color-yellow: #f0c42e;
+  --color-yellow-light: #ffe38a;
+  --color-yellow-deep: #c99700;
+  --color-cta: #0d9488;
+  --color-cta-press: #0f766e;
+  --color-cta-soft: #ccfbf1;
+  --color-text: #1e3a5f;
+  --color-text-muted: #5a7a9a;
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+  --color-focus: #0d9488;
+
+  --font-display: 'Fredoka', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-disc: 50%;
+
+  --shadow-clay-out:
+    4px 4px 0 rgba(30, 58, 95, 0.12),
+    0 8px 20px rgba(30, 58, 95, 0.1),
+    inset 0 2px 0 rgba(255, 255, 255, 0.45);
+  --shadow-clay-in:
+    inset 3px 3px 8px rgba(30, 58, 95, 0.18),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.5);
+  --shadow-disc:
+    inset -3px -3px 8px rgba(0, 0, 0, 0.18),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.35),
+    2px 3px 0 rgba(0, 0, 0, 0.12);
+  --shadow-well:
+    inset 3px 3px 8px rgba(30, 58, 95, 0.25),
+    inset -1px -1px 4px rgba(255, 255, 255, 0.4);
+
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 300ms;
+  --motion-drop: 420ms;
+  --motion-win: 600ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-press: cubic-bezier(0.34, 1.2, 0.64, 1);
+  --ease-drop: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --cell-size: 3.25rem;
+  --board-gap: 0.55rem;
+  --board-pad: 1.1rem;
+  --cols: 7;
+  --rows: 6;
+}
+
+@media (max-width: 520px) {
+  :root {
+    --cell-size: 2.5rem;
+    --board-gap: 0.4rem;
+    --board-pad: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

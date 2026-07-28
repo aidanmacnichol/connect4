@@ -1,0 +1,76 @@
+.token {
+  display: block;
+  border-radius: var(--radius-disc);
+  box-shadow: var(--shadow-disc);
+  border: 3px solid transparent;
+  flex-shrink: 0;
+}
+
+.token--md {
+  width: 100%;
+  height: 100%;
+}
+
+.token--sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 2px;
+}
+
+.token--red {
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--color-red-light),
+    var(--color-red)
+  );
+  border-color: var(--color-red-deep);
+}
+
+.token--yellow {
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--color-yellow-light),
+    var(--color-yellow)
+  );
+  border-color: var(--color-yellow-deep);
+}
+
+.token--dropping {
+  animation: disc-drop var(--motion-drop) var(--ease-drop) both;
+}
+
+.token--winning {
+  animation: win-pulse var(--motion-win) var(--ease-out) 3;
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 1px;
+}
+
+@keyframes disc-drop {
+  0% {
+    transform: translateY(
+        calc(-1 * var(--drop-rows, 1) * (var(--cell-size) + var(--board-gap)))
+      )
+      scaleY(1);
+    opacity: 0.95;
+  }
+  82% {
+    transform: translateY(0) scaleY(1);
+    opacity: 1;
+  }
+  90% {
+    transform: translateY(0) scaleY(0.92);
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes win-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
