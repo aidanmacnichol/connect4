@@ -1,0 +1,193 @@
+package ws
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"sync"
+	"time"
+
+	"github.com/aidanmacnichol/connect4/server/internal/game"
+	"github.com/aidanmacnichol/connect4/server/internal/matchmaking"
+	"github.com/coder/websocket"
+	"github.com/google/uuid"
+)
+
+// global queue
+var matchQueue = matchmaking.NewQueue()
+
+var (
+	games   = map[string]*game.Game{} // gameID -> game
+	players = map[string]string{}     // playerID -> gameID
+	rooms   = map[string][2]*Client{} // gameID -> [red, yellow]
+	hubMu   sync.Mutex
+)
+
+func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
+		OriginPatterns: []string{"*"}, // local testing only
+	})
+	if err != nil {
+		log.Println("Error accepting websocket connection:", err)
+		return
+	}
+	defer conn.CloseNow()
+
+	ctx, cancel := context.WithTimeout(r.Context(), time.Hour)
+	defer cancel()
+
+	client := &Client{
+		id:   uuid.New().String(),
+		Conn: conn,
+	}
+	fmt.Println("Client connected:", client.ID())
+
+	for {
+		_, data, err := client.Conn.Read(ctx)
+		if err != nil {
+			// Normal when the browser tab closes / React remounts the socket.
+			break
+		}
+
+		var msg ClientMessage
+		if err := json.Unmarshal(data, &msg); err != nil {
+			_ = client.Send(ctx, ServerMessage{Type: MsgError, Message: "bad json"})
+			fmt.Println("Error unmarshalling message:", err)
+			continue
+		}
+		fmt.Println("from", client.ID(), "type", msg.Type)
+
+		switch msg.Type {
+		case MsgFindGame:
+			handleFindGame(ctx, client)
+
+		case MsgCancel:
+			matchQueue.Cancel(client.ID())
+			_ = client.Send(ctx, ServerMessage{Type: MsgCancel, Message: "game cancelled"})
+
+		case MsgMove:
+			handleMove(ctx, client, msg.Col)
+
+		default:
+			_ = client.Send(ctx, ServerMessage{Type: MsgError, Message: "unknown message type"})
+		}
+	}
+	matchQueue.Cancel(client.ID())
+	fmt.Println("client disconnected:", client.ID())
+}
+
+func handleFindGame(ctx context.Context, client *Client) {
+	opponent, matched := matchQueue.Enqueue(client)
+	if !matched {
+		_ = client.Send(ctx, ServerMessage{Type: MsgQueued})
+		return
+	}
+
+	opp, ok := opponent.(*Client)
+	if !ok {
+		_ = client.Send(ctx, ServerMessage{Type: MsgError, Message: "internal matchmaking error"})
+		return
+	}
+	startMatchedGame(ctx, opp, client)
+}
+
+func startMatchedGame(ctx context.Context, red, yellow *Client) {
+	gameID := uuid.New().String()
+	g := game.NewGame(gameID)
+
+	hubMu.Lock()
+	games[gameID] = g
+	players[red.ID()] = gameID
+	players[yellow.ID()] = gameID
+	rooms[gameID] = [2]*Client{red, yellow}
+	hubMu.Unlock()
+
+	_ = red.Send(ctx, ServerMessage{Type: MsgMatched, GameID: gameID, Color: "red"})
+	_ = yellow.Send(ctx, ServerMessage{Type: MsgMatched, GameID: gameID, Color: "yellow"})
+	broadcastState(ctx, gameID, g, red, yellow)
+	fmt.Println("started game", gameID, "with", red.ID(), "(red) and", yellow.ID(), "(yellow)")
+}
+
+func handleMove(ctx context.Context, client *Client, col *int) {
+	if col == nil {
+		_ = client.Send(ctx, ServerMessage{Type: MsgError, Message: "missing col"})
+		return
+	}
+
+	hubMu.Lock()
+	gameID, ok := players[client.ID()]
+	if !ok {
+		hubMu.Unlock()
+		_ = client.Send(ctx, ServerMessage{Type: MsgError, Message: "not in a game"})
+		return
+	}
+	g := games[gameID]
+	room := rooms[gameID]
+
+	var expected *Client
+	if g.Current() == game.Red {
+		expected = room[0]
+	} else {
+		expected = room[1]
+	}
+	if client != expected {
+		hubMu.Unlock()
+		_ = client.Send(ctx, ServerMessage{Type: MsgError, Message: "not your turn"})
+		return
+	}
+
+	if err := g.Play(*col); err != nil {
+		hubMu.Unlock()
+		_ = client.Send(ctx, ServerMessage{Type: MsgError, Message: err.Error()})
+		return
+	}
+
+	red, yellow := room[0], room[1]
+	hubMu.Unlock()
+
+	broadcastState(ctx, gameID, g, red, yellow)
+}
+
+func broadcastState(ctx context.Context, gameID string, g *game.Game, red, yellow *Client) {
+	msgType := MsgState
+	if g.IsOver() {
+		msgType = MsgGameOver
+	}
+
+	msg := ServerMessage{
+		Type:    msgType,
+		GameID:  gameID,
+		Board:   boardToJSON(g),
+		Current: cellName(g.Current()),
+		Winner:  cellName(g.Winner()),
+		Draw:    g.IsDraw(),
+	}
+
+	_ = red.Send(ctx, msg)
+	_ = yellow.Send(ctx, msg)
+}
+
+func boardToJSON(g *game.Game) [][]int {
+	raw := g.Board()
+	out := make([][]int, game.Rows)
+	for r := 0; r < game.Rows; r++ {
+		out[r] = make([]int, game.Cols)
+		for c := 0; c < game.Cols; c++ {
+			out[r][c] = int(raw[r][c])
+		}
+	}
+	return out
+}
+
+func cellName(c game.Cell) string {
+	switch c {
+	case game.Red:
+		return "red"
+	case game.Yellow:
+		return "yellow"
+	default:
+		return "empty"
+	}
+}

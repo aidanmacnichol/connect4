@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# C++ build trees
+engine/build/
+engine/build-wasm/
+engine/.emscripten_cache/
+**/build/
+
+# Generated WASM artifacts (rebuild with engine/build_wasm.sh)
+web/src/wasm/*
+!web/src/wasm/.gitkeep
+web/public/engine/
+
+# Go
+server/bin/
+*.exe
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
