@@ -1,0 +1,27 @@
+.player-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 6px 12px 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 3px solid;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-clay-out);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  text-transform: capitalize;
+}
+
+.player-chip--red {
+  border-color: var(--color-red-deep);
+}
+
+.player-chip--yellow {
+  border-color: var(--color-yellow-deep);
+}
+
+.player-chip__label {
+  letter-spacing: 0.01em;
+}
