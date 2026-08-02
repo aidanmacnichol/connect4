@@ -6,13 +6,16 @@ import (
 	"time"
 
 	"github.com/aidanmacnichol/connect4/server/internal/api"
+	"github.com/aidanmacnichol/connect4/server/internal/auth"
 	"github.com/aidanmacnichol/connect4/server/internal/config"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func New(cfg config.Config) *http.Server {
+func New(cfg config.Config, pool *pgxpool.Pool) *http.Server {
+	oauth := auth.NewGoogleOAuth(cfg)
 	return &http.Server{
 		Addr:              cfg.Addr,
-		Handler:           withCORS(withLogging(api.NewRouter())),
+		Handler:           withCORS(withLogging(api.NewRouter(pool, oauth, cfg.FrontendURL))),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 }
@@ -36,6 +39,7 @@ func withCORS(next http.Handler) http.Handler {
 		switch origin {
 		case "http://localhost:5173", "http://127.0.0.1:5173":
 			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Vary", "Origin")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")

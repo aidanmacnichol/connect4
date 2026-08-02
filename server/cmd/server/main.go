@@ -11,12 +11,30 @@ import (
 	"time"
 
 	"github.com/aidanmacnichol/connect4/server/internal/config"
+	"github.com/aidanmacnichol/connect4/server/internal/db"
 	"github.com/aidanmacnichol/connect4/server/internal/server"
 )
 
 func main() {
 	cfg := config.Load()
-	srv := server.New(cfg)
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	pool, err := db.Connect(ctx, cfg.DatabaseURL)
+	if err != nil {
+		slog.Error("database connection failed", "err", err)
+		os.Exit(1)
+	}
+	defer pool.Close()
+
+	if err := db.Migrate(cfg.DatabaseURL); err != nil {
+		slog.Error("database migration failed", "err", err)
+		os.Exit(1)
+	}
+	slog.Info("database ready")
+
+	srv := server.New(cfg, pool)
 
 	go func() {
 		slog.Info("listening", "addr", cfg.Addr)
@@ -26,8 +44,6 @@ func main() {
 		}
 	}()
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 	<-ctx.Done()
 
 	slog.Info("shutting down")
