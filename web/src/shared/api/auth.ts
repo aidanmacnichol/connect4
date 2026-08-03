@@ -13,7 +13,7 @@ export async function fetchMe(): Promise<User | null> {
     const res = await fetch(`${API}/api/me`, { credentials: 'include' })
     if (res.status === 401) return null
     if (!res.ok) throw new Error('me failed')
-        return res.json() // {id, email, name, avator_url, ... }
+    return res.json() // {id, email, name, avator_url, ... }
 }
 
 export async function logout() {

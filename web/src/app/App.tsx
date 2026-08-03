@@ -1,90 +1,54 @@
 import './App.css'
-import { useEffect, useState } from 'react'
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom'
 
-import { GameScreen } from '../pages/game/GameScreen'
-import { useGameSocket } from '../pages/game/useGameSocket'
-import { Lobby } from '../pages/lobby/Lobby'
-
+import { AppShell } from './AppShell'
+import { PlayPage } from '../pages/play/PlayPage'
 import { LoginPage } from '../pages/login/LoginPage'
-import { fetchMe, logout, type User } from '../shared/api/auth'
+import { HistoryPage } from '../pages/history/HistoryPage'
+import { useAuth } from './AuthProvider'
+
+function RequireAuth() {
+  const { user, loading } = useAuth()
+  if (loading) return <main className="app">Loading...</main>
+  if (!user) return <Navigate to="/login" replace />
+  return <Outlet />
+}
+
+function GuestOnly() {
+  const { user, loading } = useAuth()
+  if (loading) return <main className='app'>Loading...</main>
+  if (user) return <Navigate to="/" replace />
+  return <Outlet />
+}
 
 function App() {
-  const [user, setUser] = useState<User | null>(null)
-  const [authLoading, setAuthLoading] = useState(true)
-
-  const {
-    connected,
-    phase,
-    color,
-    board,
-    winner,
-    draw,
-    error,
-    status,
-    myTurn,
-    findGame,
-    cancelQueue,
-    play,
-    reconnect,
-  } = useGameSocket()
-
-  useEffect(() => {
-    fetchMe()
-    .then(setUser)
-    .catch(() => setUser(null))
-    .finally(() => setAuthLoading(false))
-  }, [])
-
-  if (authLoading) {
-    return <main className="app">Loading...</main>
-  }
-
-  if (!user) {
-    return (
-      <main className="app">
-      <LoginPage />
-      </main>
-    )
-  }
-  const inMatch = phase === 'playing' || phase === 'over'
-
   return (
-    <main className="app">
-      <p>
-        Signed in as {user.name}{' '}
-        <button type="button"
-        onClick={async () => {
-          await logout()
-          setUser(null)
-        }}
-        >
-          Logout
-        </button>
-      </p>
-      {inMatch ? (
-        <GameScreen
-          phase={phase}
-          board={board}
-          color={color}
-          myTurn={myTurn}
-          winner={winner}
-          draw={draw}
-          status={status}
-          error={error}
-          onPlay={play}
-          onPlayAgain={reconnect}
+    <Routes>
+      <Route element={<GuestOnly />}>
+        <Route
+          path='/login'
+          element={
+            <main className="app">
+              <LoginPage />
+            </main>
+          }
         />
-      ) : (
-        <Lobby
-          phase={phase}
-          connected={connected}
-          status={status}
-          error={error}
-          onFindGame={findGame}
-          onCancelQueue={cancelQueue}
-        />
-      )}
-    </main>
+      </Route>
+
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell />}>
+          <Route path="/" element={<PlayPage />} />
+          <Route path="/history" element={<HistoryPage />} />
+        </Route>
+      </Route>
+
+
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell />}>
+          <Route path="/" element={<PlayPage />} />
+        </Route>
+      </Route>
+    </Routes>
   )
 }
 
