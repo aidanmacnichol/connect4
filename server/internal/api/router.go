@@ -11,7 +11,7 @@ import (
 func NewRouter(pool *pgxpool.Pool, oauth *oauth2.Config, frontendURL string) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", Health(pool))
-	mux.HandleFunc("GET /api/ws", ws.HandleWebSocket)
+	mux.HandleFunc("GET /api/ws", ws.HandleWebSocket(pool))
 
 	// auth
 	mux.HandleFunc("GET /api/auth/google", GoogleLogin(oauth))

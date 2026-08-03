@@ -9,3 +9,16 @@ ws.onclose = () => console.log("closed")
 // test message
 ws.send(JSON.stringify({ type: "find_game" }))
 ```
+
+
+# Server
+
+- pull image (first run): `docker compose up -d` 
+
+# DB Migrations:
+- `make migrate-up`
+- `make migrate-create name=<name>`
+- make migrate-down
+
+- Postgress shell to query: `docker compose exec db psql -U connect4 -d connect4`
+`

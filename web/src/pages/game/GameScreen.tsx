@@ -1,8 +1,8 @@
 import { RotateCcw } from 'lucide-react'
-import type { PlayerColor } from '../types'
-import { Board } from './Board'
-import { ClayButton } from './ClayButton'
-import { PlayerChip } from './PlayerChip'
+import { Board } from '../../components/Board'
+import { ClayButton } from '../../components/ClayButton'
+import { PlayerChip } from '../../components/PlayerChip'
+import type { PlayerColor } from '../../shared/types'
 import './GameScreen.css'
 
 type GameScreenProps = {

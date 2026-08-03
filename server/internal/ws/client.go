@@ -5,14 +5,29 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
+	"github.com/aidanmacnichol/connect4/server/internal/game"
 	"github.com/coder/websocket"
+	"github.com/google/uuid"
 )
 
+type liveGame struct {
+	Game      *game.Game
+	startedAt time.Time
+	Moves     []moveRecord
+}
+
+type moveRecord struct {
+	Col      int
+	PlayedAt time.Time
+}
+
 type Client struct {
-	id   string
-	Conn *websocket.Conn
-	Mu   sync.Mutex
+	id     string     // connection/matchmaking id
+	userID *uuid.UUID // nil = guest
+	Conn   *websocket.Conn
+	Mu     sync.Mutex
 }
 
 func (c *Client) ID() string {

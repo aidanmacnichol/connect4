@@ -23,6 +23,12 @@ web/src/wasm/*
 !web/src/wasm/.gitkeep
 web/public/engine/
 
+# Env (keep .env.example)
+.env
+.env.local
+**/.env
+!**/.env.example
+
 # Go
 server/bin/
 *.exe
