@@ -1,5 +1,5 @@
-import createConnect4Module from './wasm/connect4.js'
-import wasmUrl from './wasm/connect4.wasm?url'
+import createConnect4Module from '../../wasm/connect4.js'
+import wasmUrl from '../../wasm/connect4.wasm?url'
 
 type Connect4Module = Awaited<ReturnType<typeof createConnect4Module>>
 

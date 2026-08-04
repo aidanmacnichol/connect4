@@ -1,9 +1,14 @@
-import './App.css'
-import { GameScreen } from './components/GameScreen'
-import { Lobby } from './components/Lobby'
-import { useGameSocket } from './useGameSocket'
 
-function App() {
+
+import '../../app/App.css'
+
+import { GameScreen } from '../game/GameScreen'
+import { useGameSocket } from '../game/useGameSocket'
+import { Lobby } from '../lobby/Lobby'
+
+
+export function PlayPage() {
+
   const {
     connected,
     phase,
@@ -19,6 +24,7 @@ function App() {
     play,
     reconnect,
   } = useGameSocket()
+
 
   const inMatch = phase === 'playing' || phase === 'over'
 
@@ -51,4 +57,4 @@ function App() {
   )
 }
 
-export default App
+export default PlayPage

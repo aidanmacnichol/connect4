@@ -1,7 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { BrowserRouter } from 'react-router-dom'
+import './shared/styles/index.css'
+import App from './app/App.tsx'
+import { AuthProvider } from './app/AuthProvider.tsx'
 
 const root = document.getElementById('root')
 if (!root) {
@@ -10,6 +12,10 @@ if (!root) {
 
 createRoot(root).render(
   <StrictMode>
+    <BrowserRouter>
+    <AuthProvider>
     <App />
+    </AuthProvider>
+    </BrowserRouter>
   </StrictMode>,
 )

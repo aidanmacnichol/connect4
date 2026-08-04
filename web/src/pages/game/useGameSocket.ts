@@ -5,7 +5,7 @@ import type {
   GamePhase,
   PlayerColor,
   ServerMessage,
-} from './types'
+} from '../../shared/types'
 
 const EMPTY_BOARD = (): number[][] =>
   Array.from({ length: 6 }, () => Array.from({ length: 7 }, () => 0))

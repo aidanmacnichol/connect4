@@ -8,7 +8,25 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type Game struct {
+	ID            uuid.UUID          `json:"id"`
+	RedUserID     *uuid.UUID         `json:"red_user_id"`
+	YellowUserID  *uuid.UUID         `json:"yellow_user_id"`
+	WinnerID      *uuid.UUID         `json:"winner_id"`
+	TimeControlMs *int32             `json:"time_control_ms"`
+	StartedAt     time.Time          `json:"started_at"`
+	EndedAt       pgtype.Timestamptz `json:"ended_at"`
+}
+
+type GameMove struct {
+	GameID     uuid.UUID `json:"game_id"`
+	MoveNumber int32     `json:"move_number"`
+	Col        int16     `json:"col"`
+	PlayedAt   time.Time `json:"played_at"`
+}
 
 type Session struct {
 	ID        string    `json:"id"`

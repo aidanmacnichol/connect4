@@ -11,13 +11,17 @@ import (
 func NewRouter(pool *pgxpool.Pool, oauth *oauth2.Config, frontendURL string) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", Health(pool))
-	mux.HandleFunc("GET /api/ws", ws.HandleWebSocket)
+
+	// websocket
+	mux.HandleFunc("GET /api/ws", ws.HandleWebSocket(pool))
 
 	// auth
 	mux.HandleFunc("GET /api/auth/google", GoogleLogin(oauth))
 	mux.HandleFunc("GET /api/auth/google/callback", GoogleCallback(oauth, pool, frontendURL))
-
 	mux.HandleFunc("GET /api/me", Me(pool))
 	mux.HandleFunc("POST /api/auth/logout", Logout(pool))
+
+	// User specific
+	mux.Handle("GET /api/game/history", RequireUser(pool, GetGameHistoryForUser(pool)))
 	return mux
 }

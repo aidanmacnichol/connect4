@@ -1,7 +1,7 @@
 import { Loader, Play, X } from 'lucide-react'
-import type { GamePhase } from '../types'
-import { Board } from './Board'
-import { ClayButton } from './ClayButton'
+import { Board } from '../../components/Board'
+import { ClayButton } from '../../components/ClayButton'
+import type { GamePhase } from '../../shared/types'
 import './Lobby.css'
 
 type LobbyProps = {

@@ -1,4 +1,4 @@
-@import './styles/tokens.css';
+@import '../shared/styles/tokens.css';
 
 .app {
   min-height: 100vh;
@@ -16,4 +16,17 @@
     var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
+}
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 220px;
+  padding: 1rem;
+  border-right: 3px solid #2a5f94
+}
+.shell__main {
+  flex: 1; 
 }
