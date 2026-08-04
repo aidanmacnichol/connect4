@@ -29,6 +29,10 @@ web/public/engine/
 **/.env
 !**/.env.example
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Go
 server/bin/
 *.exe
