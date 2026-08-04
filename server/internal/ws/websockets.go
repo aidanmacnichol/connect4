@@ -219,9 +219,9 @@ func persistGame(ctx context.Context, pool *pgxpool.Pool, lg *liveGame, red, yel
 	q := sqlc.New(pool)
 	_, err = q.CreateGame(ctx, sqlc.CreateGameParams{
 		ID:           gameID,
-		RedUserID:    pgUUID(red.userID),
-		YellowUserID: pgUUID(yellow.userID),
-		WinnerID:     pgUUID(winner),
+		RedUserID:    red.userID,
+		YellowUserID: yellow.userID,
+		WinnerID:     winner,
 		StartedAt:    lg.startedAt,
 		EndedAt:      pgTimestamptz(time.Now().UTC()),
 	})
@@ -264,13 +264,6 @@ func cellName(c game.Cell) string {
 	default:
 		return "empty"
 	}
-}
-
-func pgUUID(id *uuid.UUID) pgtype.UUID {
-	if id == nil {
-		return pgtype.UUID{}
-	}
-	return pgtype.UUID{Bytes: *id, Valid: true}
 }
 
 func pgTimestamptz(t time.Time) pgtype.Timestamptz {

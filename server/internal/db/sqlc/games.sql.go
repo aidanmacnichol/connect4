@@ -21,9 +21,9 @@ RETURNING id, red_user_id, yellow_user_id, winner_id, time_control_ms, started_a
 
 type CreateGameParams struct {
 	ID            uuid.UUID          `json:"id"`
-	RedUserID     pgtype.UUID        `json:"red_user_id"`
-	YellowUserID  pgtype.UUID        `json:"yellow_user_id"`
-	WinnerID      pgtype.UUID        `json:"winner_id"`
+	RedUserID     *uuid.UUID         `json:"red_user_id"`
+	YellowUserID  *uuid.UUID         `json:"yellow_user_id"`
+	WinnerID      *uuid.UUID         `json:"winner_id"`
 	TimeControlMs *int32             `json:"time_control_ms"`
 	StartedAt     time.Time          `json:"started_at"`
 	EndedAt       pgtype.Timestamptz `json:"ended_at"`
@@ -82,8 +82,8 @@ LIMIT $2
 `
 
 type ListGamesForUserParams struct {
-	RedUserID pgtype.UUID `json:"red_user_id"`
-	Limit     int32       `json:"limit"`
+	RedUserID *uuid.UUID `json:"red_user_id"`
+	Limit     int32      `json:"limit"`
 }
 
 func (q *Queries) ListGamesForUser(ctx context.Context, arg ListGamesForUserParams) ([]Game, error) {
@@ -103,6 +103,38 @@ func (q *Queries) ListGamesForUser(ctx context.Context, arg ListGamesForUserPara
 			&i.TimeControlMs,
 			&i.StartedAt,
 			&i.EndedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMovesForGames = `-- name: ListMovesForGames :many
+SELECT game_id, move_number, col, played_at
+FROM game_moves
+WHERE game_id = ANY($1::uuid[])
+ORDER BY game_id, move_number
+`
+
+func (q *Queries) ListMovesForGames(ctx context.Context, dollar_1 []uuid.UUID) ([]GameMove, error) {
+	rows, err := q.db.Query(ctx, listMovesForGames, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GameMove{}
+	for rows.Next() {
+		var i GameMove
+		if err := rows.Scan(
+			&i.GameID,
+			&i.MoveNumber,
+			&i.Col,
+			&i.PlayedAt,
 		); err != nil {
 			return nil, err
 		}

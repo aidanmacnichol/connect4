@@ -13,9 +13,9 @@ import (
 
 type Game struct {
 	ID            uuid.UUID          `json:"id"`
-	RedUserID     pgtype.UUID        `json:"red_user_id"`
-	YellowUserID  pgtype.UUID        `json:"yellow_user_id"`
-	WinnerID      pgtype.UUID        `json:"winner_id"`
+	RedUserID     *uuid.UUID         `json:"red_user_id"`
+	YellowUserID  *uuid.UUID         `json:"yellow_user_id"`
+	WinnerID      *uuid.UUID         `json:"winner_id"`
 	TimeControlMs *int32             `json:"time_control_ms"`
 	StartedAt     time.Time          `json:"started_at"`
 	EndedAt       pgtype.Timestamptz `json:"ended_at"`
