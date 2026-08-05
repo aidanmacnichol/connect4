@@ -28,6 +28,14 @@ web/public/engine/
 .env.local
 **/.env
 !**/.env.example
+!**/.env.prod.example
+
+# Terraform
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/terraform.tfvars
+infra/.terraform.lock.hcl
 
 # Python
 __pycache__/

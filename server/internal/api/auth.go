@@ -10,7 +10,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func GoogleLogin(oauth *oauth2.Config) http.HandlerFunc {
+func GoogleLogin(oauth *oauth2.Config, cookieSecure bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state, _ := auth.RandomString(16)
 		http.SetCookie(w, &http.Cookie{
@@ -19,13 +19,14 @@ func GoogleLogin(oauth *oauth2.Config) http.HandlerFunc {
 			Path:     "/",
 			MaxAge:   300,
 			HttpOnly: true,
+			Secure:   cookieSecure,
 			SameSite: http.SameSiteLaxMode,
 		})
 		http.Redirect(w, r, oauth.AuthCodeURL(state), http.StatusFound)
 	}
 }
 
-func GoogleCallback(oauth *oauth2.Config, pool *pgxpool.Pool, frontendURL string) http.HandlerFunc {
+func GoogleCallback(oauth *oauth2.Config, pool *pgxpool.Pool, frontendURL string, cookieSecure bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stateCookie, err := r.Cookie("oauth_state")
 		if err != nil || r.URL.Query().Get("state") != stateCookie.Value {
@@ -78,11 +79,18 @@ func GoogleCallback(oauth *oauth2.Config, pool *pgxpool.Pool, frontendURL string
 			Path:     "/",
 			MaxAge:   int((7 * 24 * time.Hour).Seconds()),
 			HttpOnly: true,
+			Secure:   cookieSecure,
 			SameSite: http.SameSiteLaxMode,
 		})
 
 		// clear oauth state
-		http.SetCookie(w, &http.Cookie{Name: "oauth_state", Path: "/", MaxAge: -1})
+		http.SetCookie(w, &http.Cookie{
+			Name:     "oauth_state",
+			Path:     "/",
+			MaxAge:   -1,
+			Secure:   cookieSecure,
+			SameSite: http.SameSiteLaxMode,
+		})
 		http.Redirect(w, r, frontendURL, http.StatusFound)
 	}
 }
@@ -106,7 +114,7 @@ func Me(pool *pgxpool.Pool) http.HandlerFunc {
 	}
 }
 
-func Logout(pool *pgxpool.Pool) http.HandlerFunc {
+func Logout(pool *pgxpool.Pool, cookieSecure bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if c, err := r.Cookie("session"); err == nil {
 			_ = auth.DeleteSession(r.Context(), pool, c.Value)
@@ -116,6 +124,7 @@ func Logout(pool *pgxpool.Pool) http.HandlerFunc {
 			Path:     "/",
 			MaxAge:   -1,
 			HttpOnly: true,
+			Secure:   cookieSecure,
 			SameSite: http.SameSiteLaxMode,
 		})
 		w.WriteHeader(http.StatusNoContent)

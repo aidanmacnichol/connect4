@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+import { API_BASE } from './base'
 
 export type GameHistoryResponse = GameHistoryItem[]
 
@@ -24,7 +24,7 @@ export type GameMove = {
 }
 
 export async function getGameHistoryForUser(): Promise<GameHistoryResponse> {
-  const res = await fetch(`${API}/api/game/history`, {
+  const res = await fetch(`${API_BASE}/api/game/history`, {
     credentials: 'include',
   })
   if (res.status === 401) throw new Error('unauthorized')

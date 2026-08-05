@@ -6,14 +6,13 @@ import type {
   PlayerColor,
   ServerMessage,
 } from '../../shared/types'
+import { wsURL } from '../../shared/api/base'
 
 const EMPTY_BOARD = (): number[][] =>
   Array.from({ length: 6 }, () => Array.from({ length: 7 }, () => 0))
 
 function wsUrl(): string {
-  const custom = import.meta.env.VITE_WS_URL
-  if (custom) return custom
-  return 'ws://localhost:8080/api/ws'
+  return wsURL('/api/ws')
 }
 
 function isServerMessage(value: unknown): value is ServerMessage {

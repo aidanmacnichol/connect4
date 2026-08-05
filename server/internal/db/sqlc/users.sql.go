@@ -12,7 +12,7 @@ import (
 )
 
 const getUserByGoogleSub = `-- name: GetUserByGoogleSub :one
-SELECT id, google_sub, email, name, avatar_url, created_at, updated_at FROM users
+SELECT id, google_sub, email, name, avatar_url, created_at, updated_at, display_name, display_name_set_at FROM users
 WHERE google_sub = $1
 `
 
@@ -27,12 +27,14 @@ func (q *Queries) GetUserByGoogleSub(ctx context.Context, googleSub string) (Use
 		&i.AvatarUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DisplayName,
+		&i.DisplayNameSetAt,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, google_sub, email, name, avatar_url, created_at, updated_at FROM users
+SELECT id, google_sub, email, name, avatar_url, created_at, updated_at, display_name, display_name_set_at FROM users
 WHERE id = $1
 `
 
@@ -47,6 +49,39 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.AvatarUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DisplayName,
+		&i.DisplayNameSetAt,
+	)
+	return i, err
+}
+
+const updateDisplayName = `-- name: UpdateDisplayName :one
+UPDATE users
+SET display_name = $2,
+    display_name_set_at = now(),
+    updated_at = now()
+WHERE id = $1
+RETURNING id, google_sub, email, name, avatar_url, created_at, updated_at, display_name, display_name_set_at
+`
+
+type UpdateDisplayNameParams struct {
+	ID          uuid.UUID `json:"id"`
+	DisplayName *string   `json:"display_name"`
+}
+
+func (q *Queries) UpdateDisplayName(ctx context.Context, arg UpdateDisplayNameParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateDisplayName, arg.ID, arg.DisplayName)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.GoogleSub,
+		&i.Email,
+		&i.Name,
+		&i.AvatarUrl,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DisplayName,
+		&i.DisplayNameSetAt,
 	)
 	return i, err
 }
@@ -59,7 +94,7 @@ ON CONFLICT (google_sub) DO UPDATE SET
     name = EXCLUDED.name,
     avatar_url = EXCLUDED.avatar_url,
     updated_at = now()
-RETURNING id, google_sub, email, name, avatar_url, created_at, updated_at
+RETURNING id, google_sub, email, name, avatar_url, created_at, updated_at, display_name, display_name_set_at
 `
 
 type UpsertUserFromGoogleParams struct {
@@ -85,6 +120,8 @@ func (q *Queries) UpsertUserFromGoogle(ctx context.Context, arg UpsertUserFromGo
 		&i.AvatarUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DisplayName,
+		&i.DisplayNameSetAt,
 	)
 	return i, err
 }
