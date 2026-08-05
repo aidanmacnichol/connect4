@@ -32,7 +32,6 @@ export function Lobby({
     <section className="lobby">
       <header className="lobby__hero">
         <h1 className="lobby__brand">Connect 4</h1>
-        <p className="lobby__support">Drop discs. Beat a stranger.</p>
       </header>
 
       <p
@@ -87,10 +86,10 @@ export function Lobby({
         <Board board={EMPTY_BOARD} decorative />
       </div>
 
-      <p className="lobby__hint">
+      {/* <p className="lobby__hint">
         Run the Go server (<code>cd server && go run ./cmd/server</code>), then
         open this page in two tabs and hit Find game in each.
-      </p>
+      </p> */}
     </section>
   )
 }

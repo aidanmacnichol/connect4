@@ -31,10 +31,19 @@ export function Sidebar() {
                 >
                     History
                 </NavLink>
+
+                <NavLink
+                    to="/profile"
+                    className={({ isActive }) =>
+                        isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
+                    }
+                >
+                    Profile
+                </NavLink>
             </nav>
 
             <div className="sidebar__footer">
-                <p className="sidebar__name">{user.name}</p>
+                <p className="sidebar__name">{user.display_name ?? user.name}</p>
                 <button type="button" onClick={() => void logout()}>
                     Logout
                 </button>

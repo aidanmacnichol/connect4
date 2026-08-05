@@ -19,7 +19,10 @@ ws.send(JSON.stringify({ type: "find_game" }))
 # Server
 
 - Run Server: `go run ./cmd/server`
-- pull image (first run): `docker compose up -d` 
+- Local DB only: `docker compose up -d`
+- Prod-shaped stack (Caddy+API+DB): `docker compose -f docker-compose.prod.yml up --build`
+- AWS deploy notes: `deploy/DEPLOY.md`
+- Terraform (VM): `cd infra && terraform init && terraform apply` 
 
 ### DB Migrations:
 - Apply migration:`make migrate-up`

@@ -1,6 +1,6 @@
 import { ClayButton } from "../../components/ClayButton"
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8080'
+import { API_BASE } from '../../shared/api/base'
 
 
 
@@ -12,7 +12,7 @@ export function LoginPage() {
         <ClayButton
             variant = 'primary'
             onClick={() => {
-                window.location.href = `${API}/api/auth/google`
+                window.location.href = `${API_BASE}/api/auth/google`
             }}
             >
                 Continue with Google

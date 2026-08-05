@@ -6,6 +6,16 @@ import { PlayPage } from '../pages/play/PlayPage'
 import { LoginPage } from '../pages/login/LoginPage'
 import { HistoryPage } from '../pages/history/HistoryPage'
 import { useAuth } from './AuthProvider'
+import { ProfilePage } from '../pages/profile/ProfilePage'
+
+// set a display name
+function RequireOnboarding() {
+  const { user, loading } = useAuth()
+  if (loading) return <main className="app">Loading...</main>
+  if (!user) return <Navigate to="/login" replace />
+  if (!user.display_name) return <Navigate to="/profile" replace />
+  return <Outlet />
+}
 
 function RequireAuth() {
   const { user, loading } = useAuth()
@@ -37,17 +47,15 @@ function App() {
 
       <Route element={<RequireAuth />}>
         <Route element={<AppShell />}>
-          <Route path="/" element={<PlayPage />} />
-          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+
+          <Route element={<RequireOnboarding />}>
+            <Route path="/" element={<PlayPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+          </Route>
         </Route>
       </Route>
 
-
-      <Route element={<RequireAuth />}>
-        <Route element={<AppShell />}>
-          <Route path="/" element={<PlayPage />} />
-        </Route>
-      </Route>
     </Routes>
   )
 }

@@ -47,7 +47,7 @@ func (q *Queries) DeleteSession(ctx context.Context, id string) error {
 }
 
 const getUserBySessionID = `-- name: GetUserBySessionID :one
-SELECT u.id, u.google_sub, u.email, u.name, u.avatar_url, u.created_at, u.updated_at
+SELECT u.id, u.google_sub, u.email, u.name, u.avatar_url, u.created_at, u.updated_at, u.display_name, u.display_name_set_at
 FROM users u
 INNER JOIN sessions s ON s.user_id = u.id
 WHERE s.id = $1
@@ -65,6 +65,8 @@ func (q *Queries) GetUserBySessionID(ctx context.Context, id string) (User, erro
 		&i.AvatarUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DisplayName,
+		&i.DisplayNameSetAt,
 	)
 	return i, err
 }

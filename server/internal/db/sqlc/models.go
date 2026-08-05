@@ -36,11 +36,13 @@ type Session struct {
 }
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	GoogleSub string    `json:"google_sub"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
-	AvatarUrl *string   `json:"avatar_url"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID               uuid.UUID          `json:"id"`
+	GoogleSub        string             `json:"google_sub"`
+	Email            string             `json:"email"`
+	Name             string             `json:"name"`
+	AvatarUrl        *string            `json:"avatar_url"`
+	CreatedAt        time.Time          `json:"created_at"`
+	UpdatedAt        time.Time          `json:"updated_at"`
+	DisplayName      *string            `json:"display_name"`
+	DisplayNameSetAt pgtype.Timestamptz `json:"display_name_set_at"`
 }

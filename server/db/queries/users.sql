@@ -15,3 +15,11 @@ WHERE id = $1;
 -- name: GetUserByGoogleSub :one
 SELECT * FROM users
 WHERE google_sub = $1;
+
+-- name: UpdateDisplayName :one
+UPDATE users
+SET display_name = $2,
+    display_name_set_at = now(),
+    updated_at = now()
+WHERE id = $1
+RETURNING *;
