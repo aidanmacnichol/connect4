@@ -1,0 +1,6 @@
+aws_region    = "ca-central-1"
+project_name  = "connect4"
+instance_type = "t4g.small"
+key_name      = "connect4"          # create in AWS console / aws ec2 create-key-pair
+ssh_cidr      = "1.2.3.4/32"        # your public IP
+domain_name   = "connect4.example.com"

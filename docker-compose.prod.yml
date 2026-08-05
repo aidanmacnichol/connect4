@@ -1,0 +1,58 @@
+# Production-shaped stack: Caddy (TLS + static) → API → Postgres
+# Local smoke: SITE_ADDRESS=:80 docker compose -f docker-compose.prod.yml up --build
+# AWS: set SITE_ADDRESS=your.domain and real secrets in .env
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-connect4}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-connect4}
+      POSTGRES_DB: ${POSTGRES_DB:-connect4}
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      ADDR: ":8080"
+      DATABASE_URL: postgres://${POSTGRES_USER:-connect4}:${POSTGRES_PASSWORD:-connect4}@db:5432/${POSTGRES_DB:-connect4}?sslmode=disable
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      OAUTH_REDIRECT_URL: ${OAUTH_REDIRECT_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  pgdata_prod:
+  caddy_data:
+  caddy_config:
